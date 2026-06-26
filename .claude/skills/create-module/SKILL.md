@@ -138,7 +138,15 @@ namespace Kentos.Modules.{Module};
 public sealed class {Module}Module : IModule
 {
     public string Slug => {Module}Permissions.ModuleSlug;
-    public string DisplayName => "{Module}";
+    public string DisplayName => "{Module}";   // Turkish label
+
+    // Inline SVG (Lucide-style: viewBox 0 0 24 24, stroke="currentColor" so /docs can
+    // recolor it). Swap for an icon that fits the module; keep it a single <svg> string.
+    public string Icon =>
+        """
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        """;
+
     public string Version => "1.0.0";
     public string? LicenseKey => "{module}";   // null = core module (always enabled)
     public IReadOnlyList<PermissionDefinition> Permissions => {Module}Permissions.All;
@@ -152,7 +160,9 @@ public sealed class {Module}Module : IModule
 }
 ```
 
-The `DisplayName` is a Turkish label (e.g. "Yerleşim"), shown by the metadata API.
+The `DisplayName` is a Turkish label (e.g. "Yerleşim"); both it and `Icon` (inline SVG)
+are shown by the metadata API and on the `/docs` home, where the module gets its own
+Scalar UI at `/scalar/{slug}`.
 
 ## 7. Wire it in
 
@@ -169,7 +179,7 @@ The `DisplayName` is a Turkish label (e.g. "Yerleşim"), shown by the metadata A
 ```bash
 make build                      # compiles
 dotnet run --project tools/Kentos.AdminCli -- permissions scan -o permissions.json   # module discoverable (0 perms yet)
-make run                        # GET /api/v1/metadata now lists the new module
+make run                        # GET /api/v1/metadata lists the module; /docs shows its card → /scalar/{module}
 ```
 
 Then add resources with **/create-resource** (module = `{module}`).

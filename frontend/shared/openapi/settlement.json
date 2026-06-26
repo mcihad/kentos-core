@@ -1,0 +1,1188 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Kentos.Host | settlement",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5080/"
+    }
+  ],
+  "paths": {
+    "/api/v1/settlement/districts": {
+      "get": {
+        "tags": [
+          "Districts"
+        ],
+        "summary": "İlçeleri listele",
+        "description": "**Permission:** `settlement.district.list`\n\n",
+        "parameters": [
+          {
+            "name": "ProvinceId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDistrictResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDistrictResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDistrictResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.district.list"
+      },
+      "post": {
+        "tags": [
+          "Districts"
+        ],
+        "summary": "İlçe ekle",
+        "description": "**Permission:** `settlement.district.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDistrictCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDistrictCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDistrictCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.district.create"
+      }
+    },
+    "/api/v1/settlement/districts/{id}": {
+      "get": {
+        "tags": [
+          "Districts"
+        ],
+        "summary": "İlçe getir",
+        "description": "**Permission:** `settlement.district.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistrictResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.district.view"
+      }
+    },
+    "/api/v1/settlement/neighborhoods": {
+      "get": {
+        "tags": [
+          "Neighborhoods"
+        ],
+        "summary": "Mahalleleri listele",
+        "description": "**Permission:** `settlement.neighborhood.list`\n\n",
+        "parameters": [
+          {
+            "name": "DistrictId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfNeighborhoodResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfNeighborhoodResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfNeighborhoodResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.neighborhood.list"
+      },
+      "post": {
+        "tags": [
+          "Neighborhoods"
+        ],
+        "summary": "Mahalle ekle",
+        "description": "**Permission:** `settlement.neighborhood.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNeighborhoodCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNeighborhoodCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNeighborhoodCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.neighborhood.create"
+      }
+    },
+    "/api/v1/settlement/neighborhoods/{id}": {
+      "get": {
+        "tags": [
+          "Neighborhoods"
+        ],
+        "summary": "Mahalle getir",
+        "description": "**Permission:** `settlement.neighborhood.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.neighborhood.view"
+      },
+      "put": {
+        "tags": [
+          "Neighborhoods"
+        ],
+        "summary": "Mahalle güncelle",
+        "description": "**Permission:** `settlement.neighborhood.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborhoodRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborhoodRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNeighborhoodRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NeighborhoodResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.neighborhood.update"
+      },
+      "delete": {
+        "tags": [
+          "Neighborhoods"
+        ],
+        "summary": "Mahalle sil",
+        "description": "**Permission:** `settlement.neighborhood.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "settlement.neighborhood.delete"
+      }
+    },
+    "/api/v1/settlement/provinces": {
+      "get": {
+        "tags": [
+          "Provinces"
+        ],
+        "summary": "İlleri listele",
+        "description": "**Permission:** `settlement.province.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfProvinceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfProvinceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfProvinceResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.province.list"
+      },
+      "post": {
+        "tags": [
+          "Provinces"
+        ],
+        "summary": "İl ekle",
+        "description": "**Permission:** `settlement.province.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProvinceCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProvinceCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProvinceCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.province.create"
+      }
+    },
+    "/api/v1/settlement/provinces/{id}": {
+      "get": {
+        "tags": [
+          "Provinces"
+        ],
+        "summary": "İl getir",
+        "description": "**Permission:** `settlement.province.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvinceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "settlement.province.view"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateDistrictCommand": {
+        "required": [
+          "name",
+          "provinceId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "provinceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CreateNeighborhoodCommand": {
+        "required": [
+          "name",
+          "districtId",
+          "postalCode",
+          "latitude",
+          "longitude",
+          "boundaryWkt"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "districtId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "postalCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "longitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "boundaryWkt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreateProvinceCommand": {
+        "required": [
+          "name",
+          "plateCode"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "plateCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "DistrictResponse": {
+        "required": [
+          "id",
+          "name",
+          "provinceId",
+          "version",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "provinceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NeighborhoodResponse": {
+        "required": [
+          "id",
+          "name",
+          "districtId",
+          "postalCode",
+          "latitude",
+          "longitude",
+          "boundaryWkt",
+          "version",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "districtId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "postalCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "longitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "boundaryWkt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PagedResponseOfDistrictResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistrictResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfNeighborhoodResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NeighborhoodResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfProvinceResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvinceResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProvinceResponse": {
+        "required": [
+          "id",
+          "name",
+          "plateCode",
+          "version",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plateCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateNeighborhoodRequest": {
+        "required": [
+          "name",
+          "postalCode",
+          "latitude",
+          "longitude",
+          "boundaryWkt"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "longitude": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "boundaryWkt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Kentos self-issued JWT access token (Bearer).",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Districts"
+    },
+    {
+      "name": "Neighborhoods"
+    },
+    {
+      "name": "Provinces"
+    }
+  ]
+}

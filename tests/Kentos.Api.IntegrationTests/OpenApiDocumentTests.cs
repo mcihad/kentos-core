@@ -5,34 +5,37 @@ using Shouldly;
 namespace Kentos.Api.IntegrationTests;
 
 [Collection(ApiCollection.Name)]
-public sealed class OpenApiTagGroupsTests
+public sealed class OpenApiDocumentTests
 {
     private readonly ApiFactory _factory;
 
-    public OpenApiTagGroupsTests(ApiFactory factory) => _factory = factory;
+    public OpenApiDocumentTests(ApiFactory factory) => _factory = factory;
 
     [Fact]
-    public async Task OpenApi_document_groups_resources_by_module_via_x_tagGroups()
+    public async Task Combined_document_uses_default_controller_tags_without_x_tagGroups()
     {
         var json = await _factory.CreateClient().GetStringAsync("/openapi/v1.json");
         using var doc = JsonDocument.Parse(json);
 
-        var groups = doc.RootElement.GetProperty("x-tagGroups").EnumerateArray().ToList();
-        groups.ShouldNotBeEmpty();
+        // Modules are split into their own documents, so the combined document no longer
+        // emits the x-tagGroups module grouping — operations carry the default
+        // controller-name tag.
+        doc.RootElement.TryGetProperty("x-tagGroups", out _).ShouldBeFalse();
 
-        // Module group titles use the Turkish DisplayName.
-        var hesap = groups.Single(g => g.GetProperty("name").GetString() == "Hesap");
-        var hesapTags = hesap.GetProperty("tags").EnumerateArray().Select(t => t.GetString()).ToList();
-        hesapTags.ShouldContain("users");
-        hesapTags.ShouldContain("roles");
-
-        var settlement = groups.Single(g => g.GetProperty("name").GetString() == "Yerleşim");
-        settlement.GetProperty("tags").EnumerateArray().Select(t => t.GetString()).ShouldContain("provinces");
-
-        // An operation is tagged with its resource (so it nests under the module group).
         var listProvinces = doc.RootElement
             .GetProperty("paths").GetProperty("/api/v1/settlement/provinces")
             .GetProperty("get").GetProperty("tags").EnumerateArray().Select(t => t.GetString()).ToList();
-        listProvinces.ShouldContain("provinces");
+        listProvinces.ShouldContain("Provinces");
+    }
+
+    [Fact]
+    public async Task Per_module_document_only_contains_that_modules_routes()
+    {
+        var json = await _factory.CreateClient().GetStringAsync("/openapi/settlement.json");
+        using var doc = JsonDocument.Parse(json);
+
+        var paths = doc.RootElement.GetProperty("paths").EnumerateObject().Select(p => p.Name).ToList();
+        paths.ShouldNotBeEmpty();
+        paths.ShouldAllBe(p => p.StartsWith("/api/v1/settlement/"));
     }
 }

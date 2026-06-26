@@ -27,6 +27,9 @@ foreach (var module in modules)
     mvcBuilder.AddApplicationPart(module.GetType().Assembly);
 }
 
+// Register a per-module OpenAPI document (and Scalar UI) now that the module set is known.
+builder.Services.AddKentosModuleDocs(modules);
+
 var moduleAssemblies = modules.Select(m => m.GetType().Assembly).Distinct().ToArray();
 builder.Services.AddSingleton(new ModuleRegistry(modules));
 builder.Services.AddKentosMapping(moduleAssemblies);

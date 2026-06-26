@@ -14,7 +14,7 @@ namespace Kentos.Modules.Hesap.Api;
 public sealed class MeController(ICurrentUser currentUser) : ControllerBase
 {
     [HttpGet]
-    [EndpointSummary("Mevcut kullanıcı bağlamı (roller + modüle göre yetkiler)")]
+    [EndpointSummary("Beni göster")]
     [ProducesResponseType<CurrentUserResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public ActionResult<CurrentUserResponse> Get()

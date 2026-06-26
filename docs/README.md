@@ -28,7 +28,8 @@ explain *how things work* and *how to operate them*; when the two disagree,
 
 ```bash
 make up        # docker infra (postgres/mongo/otel) + apply migrations
-make run       # run the API at http://localhost:5080 (Scalar at /scalar)
+make run       # run the API at http://localhost:5080 (docs home at /docs)
+make status    # is the API + infra up?   make stop  # stop a backgrounded API
 make test      # all tests (needs Docker for Testcontainers)
 ```
 

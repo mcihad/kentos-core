@@ -1,0 +1,2984 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Kentos.Host | hesap",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5080/"
+    }
+  ],
+  "paths": {
+    "/api/v1/hesap/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Giriş yap",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesap/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Tokenı yenile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesap/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Çıkış yap",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/hesap/departments": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Departmanları listele",
+        "description": "**Permission:** `hesap.department.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDepartmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDepartmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfDepartmentResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.department.list"
+      },
+      "post": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Departman ekle",
+        "description": "**Permission:** `hesap.department.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepartmentCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepartmentCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepartmentCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.department.create"
+      }
+    },
+    "/api/v1/hesap/departments/{id}": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Departman getir",
+        "description": "**Permission:** `hesap.department.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.department.view"
+      },
+      "put": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Departman güncelle",
+        "description": "**Permission:** `hesap.department.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDepartmentRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDepartmentRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDepartmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartmentResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.department.update"
+      },
+      "delete": {
+        "tags": [
+          "Departments"
+        ],
+        "summary": "Departman sil",
+        "description": "**Permission:** `hesap.department.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.department.delete"
+      }
+    },
+    "/api/v1/hesap/groups": {
+      "get": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grupları listele",
+        "description": "**Permission:** `hesap.group.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfGroupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfGroupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfGroupResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.group.list"
+      },
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grup ekle",
+        "description": "**Permission:** `hesap.group.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGroupCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.group.create"
+      }
+    },
+    "/api/v1/hesap/groups/{id}": {
+      "get": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grup getir",
+        "description": "**Permission:** `hesap.group.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.group.view"
+      },
+      "put": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grup güncelle",
+        "description": "**Permission:** `hesap.group.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.group.update"
+      },
+      "delete": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grup sil",
+        "description": "**Permission:** `hesap.group.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.group.delete"
+      }
+    },
+    "/api/v1/hesap/groups/{id}/members": {
+      "get": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Grup üyelerini listele",
+        "description": "**Permission:** `hesap.group.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupMemberResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupMemberResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupMemberResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.group.view"
+      },
+      "post": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Gruba üye ekle",
+        "description": "**Permission:** `hesap.group.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMemberRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMemberRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupMemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.group.update"
+      }
+    },
+    "/api/v1/hesap/groups/{id}/members/{userId}": {
+      "delete": {
+        "tags": [
+          "Groups"
+        ],
+        "summary": "Gruptan üye çıkar",
+        "description": "**Permission:** `hesap.group.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.group.update"
+      }
+    },
+    "/api/v1/hesap/me": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Beni göster",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hesap/permissions": {
+      "get": {
+        "tags": [
+          "Permissions"
+        ],
+        "summary": "Yetkileri listele",
+        "description": "**Permission:** `hesap.permission.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPermissionResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPermissionResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPermissionResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.permission.list"
+      }
+    },
+    "/api/v1/hesap/policies": {
+      "get": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Erişim politikalarını listele",
+        "description": "**Permission:** `hesap.policy.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPolicyResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPolicyResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfPolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.policy.list"
+      },
+      "post": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Erişim politikası ekle",
+        "description": "**Permission:** `hesap.policy.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePolicyCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePolicyCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePolicyCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.policy.create"
+      }
+    },
+    "/api/v1/hesap/policies/{id}": {
+      "delete": {
+        "tags": [
+          "Policies"
+        ],
+        "summary": "Erişim politikası sil",
+        "description": "**Permission:** `hesap.policy.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.policy.delete"
+      }
+    },
+    "/api/v1/hesap/roles": {
+      "get": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Rolleri listele",
+        "description": "**Permission:** `hesap.role.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfRoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfRoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfRoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.role.list"
+      },
+      "post": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Rol ekle",
+        "description": "**Permission:** `hesap.role.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.role.create"
+      }
+    },
+    "/api/v1/hesap/roles/{id}": {
+      "get": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Rol getir",
+        "description": "**Permission:** `hesap.role.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.role.view"
+      },
+      "put": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Rol güncelle",
+        "description": "**Permission:** `hesap.role.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.role.update"
+      },
+      "delete": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Rol sil",
+        "description": "**Permission:** `hesap.role.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.role.delete"
+      }
+    },
+    "/api/v1/hesap/roles/{id}/permissions": {
+      "put": {
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Role yetki ata",
+        "description": "**Permission:** `hesap.role.assignpermissions`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolePermissionsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolePermissionsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolePermissionsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.role.assignpermissions"
+      }
+    },
+    "/api/v1/hesap/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcıları listele",
+        "description": "**Permission:** `hesap.user.list`\n\n",
+        "parameters": [
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Skip",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfUserResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfUserResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.list"
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcı ekle",
+        "description": "**Permission:** `hesap.user.create`\n\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.create"
+      }
+    },
+    "/api/v1/hesap/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcı getir",
+        "description": "**Permission:** `hesap.user.view`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.view"
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcı güncelle",
+        "description": "**Permission:** `hesap.user.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.update"
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcı sil",
+        "description": "**Permission:** `hesap.user.delete`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "x-required-permission": "hesap.user.delete"
+      }
+    },
+    "/api/v1/hesap/users/{id}/roles": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcıya rol ata",
+        "description": "**Permission:** `hesap.user.assignroles`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignUserRolesRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignUserRolesRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignUserRolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.assignroles"
+      }
+    },
+    "/api/v1/hesap/users/{id}/departments": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Kullanıcının departmanlarını ayarla",
+        "description": "**Permission:** `hesap.user.update`\n\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserDepartmentsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserDepartmentsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetUserDepartmentsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-required-permission": "hesap.user.update"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssignRolePermissionsRequest": {
+        "required": [
+          "permissionKeys"
+        ],
+        "type": "object",
+        "properties": {
+          "permissionKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AssignUserRolesRequest": {
+        "required": [
+          "roles"
+        ],
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateDepartmentCommand": {
+        "required": [
+          "name",
+          "parentId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "CreateGroupCommand": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreatePolicyCommand": {
+        "required": [
+          "subjectType",
+          "subjectId",
+          "kind",
+          "effect",
+          "value",
+          "priority"
+        ],
+        "type": "object",
+        "properties": {
+          "subjectType": {
+            "$ref": "#/components/schemas/PolicySubjectType"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PolicyKind"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/PolicyEffect"
+          },
+          "value": {
+            "type": "string"
+          },
+          "priority": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "CreateRoleCommand": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CreateUserCommand": {
+        "required": [
+          "userName",
+          "email",
+          "displayName",
+          "password",
+          "roles"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "password": {
+            "type": "string"
+          },
+          "roles": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CurrentUserResponse": {
+        "required": [
+          "userId",
+          "userName",
+          "roles",
+          "permissions"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "userName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "DepartmentResponse": {
+        "required": [
+          "id",
+          "name",
+          "parentId",
+          "version",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GroupMemberRequest": {
+        "required": [
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "GroupMemberResponse": {
+        "required": [
+          "userId",
+          "userName",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "GroupResponse": {
+        "required": [
+          "id",
+          "name",
+          "description",
+          "memberCount",
+          "version",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "memberCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoginRequest": {
+        "required": [
+          "userName",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LogoutRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "PagedResponseOfDepartmentResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepartmentResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfGroupResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfPermissionResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfPolicyResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PolicyResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfRoleResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResponseOfUserResponse": {
+        "required": [
+          "items",
+          "totalCount",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            }
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalPages": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PermissionResponse": {
+        "required": [
+          "id",
+          "key",
+          "module",
+          "resource",
+          "action",
+          "title",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "PolicyEffect": {
+        "type": "integer"
+      },
+      "PolicyKind": {
+        "type": "integer"
+      },
+      "PolicyResponse": {
+        "required": [
+          "id",
+          "subjectType",
+          "subjectId",
+          "kind",
+          "effect",
+          "value",
+          "priority"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectType": {
+            "$ref": "#/components/schemas/PolicySubjectType"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PolicyKind"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/PolicyEffect"
+          },
+          "value": {
+            "type": "string"
+          },
+          "priority": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PolicySubjectType": {
+        "type": "integer"
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "RefreshRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "RoleDetailResponse": {
+        "required": [
+          "id",
+          "name",
+          "description",
+          "permissions",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RoleResponse": {
+        "required": [
+          "id",
+          "name",
+          "description",
+          "permissionCount",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "permissionCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SetUserDepartmentsRequest": {
+        "required": [
+          "departmentIds"
+        ],
+        "type": "object",
+        "properties": {
+          "departmentIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "TokenResponse": {
+        "required": [
+          "accessToken",
+          "accessTokenExpiresAt",
+          "refreshToken",
+          "refreshTokenExpiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "refreshTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateDepartmentRequest": {
+        "required": [
+          "name",
+          "parentId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateGroupRequest": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "UpdateRoleRequest": {
+        "required": [
+          "name",
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "UpdateUserRequest": {
+        "required": [
+          "email",
+          "displayName",
+          "lockoutEnabled"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lockoutEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserDetailResponse": {
+        "required": [
+          "id",
+          "userName",
+          "email",
+          "displayName",
+          "lockoutEnabled",
+          "roles",
+          "departments",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lockoutEnabled": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserResponse": {
+        "required": [
+          "id",
+          "userName",
+          "email",
+          "displayName",
+          "lockoutEnabled",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lockoutEnabled": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Kentos self-issued JWT access token (Bearer).",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Departments"
+    },
+    {
+      "name": "Groups"
+    },
+    {
+      "name": "Me"
+    },
+    {
+      "name": "Permissions"
+    },
+    {
+      "name": "Policies"
+    },
+    {
+      "name": "Roles"
+    },
+    {
+      "name": "Users"
+    }
+  ]
+}

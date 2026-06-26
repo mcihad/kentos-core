@@ -4,10 +4,17 @@ services:
   postgres:
     image: postgis/postgis:18-3.6
     container_name: kentos-postgres
+    # Display timestamptz in Türkiye time (UTC+3). The stored instant is unchanged —
+    # the app still writes/reads UTC; this only shifts how Postgres renders the offset
+    # (e.g. 18:56+00 → 21:56+03). `-c timezone=` is a cluster-wide setting so it survives
+    # `make db-reset` (which drops/recreates the database, not the cluster).
+    command: ["postgres", "-c", "timezone=Europe/Istanbul"]
     environment:
       POSTGRES_USER: kentos
       POSTGRES_PASSWORD: kentos
       POSTGRES_DB: kentos
+      TZ: Europe/Istanbul
+      PGTZ: Europe/Istanbul
     ports:
       - "5432:5432"
     volumes:
@@ -61,11 +68,17 @@ services:
   nginx:
     image: nginx:1.27-alpine
     container_name: kentos-nginx
+    # Log access times in Türkiye time ($time_iso8601 → +03) so they match the audit
+    # records an inspector reviews. The zoneinfo bind makes /etc/localtime resolve even
+    # though the alpine image ships no tzdata.
+    environment:
+      TZ: Europe/Istanbul
     ports:
       - "8080:80"
     volumes:
       - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./logs/nginx:/var/log/nginx
+      - /usr/share/zoneinfo/Europe/Istanbul:/etc/localtime:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

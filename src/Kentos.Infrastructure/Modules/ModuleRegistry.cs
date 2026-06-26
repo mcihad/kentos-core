@@ -23,6 +23,7 @@ public sealed class ModuleRegistry
             module.Slug,
             module.DisplayName,
             module.Version,
+            module.Icon,
             Enabled: true,
             module.Permissions
                 .Select(p => new ModulePermissionInfo(p.Key, p.Resource, p.Action, p.Title))

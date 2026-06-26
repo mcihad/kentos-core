@@ -164,6 +164,16 @@ make permissions-scan     # permissions.json includes the new keys
 # (the bootstrap 'yonetici' role automatically receives every permission).
 ```
 
+## 12. Regenerate the frontend client (MANDATORY — keeps both sides in sync)
+With the app running (`make run`):
+```bash
+make gen-frontend         # regenerates frontend/shared per-module SDK + TanStack Query hooks
+```
+This produces the typed SDK and TanStack Query hooks (with `@permission` JSDoc) for the new
+endpoints and appends the new endpoints/fields to **`frontend/TODO.md`** for the frontend side
+to pick up. Never hand-write client models/services — they are generated. See
+`frontend/shared/README.md`.
+
 ## Gotchas
 - Logic lives in the **service**; handlers are one-line delegators (the CQRS entry
   point gets Wolverine validation middleware).

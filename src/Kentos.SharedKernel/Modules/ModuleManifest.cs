@@ -5,6 +5,7 @@ public sealed record ModuleManifest(
     string Slug,
     string DisplayName,
     string Version,
+    string Icon,
     bool Enabled,
     IReadOnlyList<ModulePermissionInfo> Permissions);
 

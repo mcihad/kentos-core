@@ -8,24 +8,37 @@ endpoints correctly.
 
 | URL | What |
 |---|---|
-| `http://localhost:5080/scalar` | Scalar interactive UI (browse + try endpoints) |
-| `http://localhost:5080/openapi/v1.json` | raw OpenAPI document (v1) |
-| `http://localhost:5080/api/v1/metadata` | licensed modules + their permissions |
+| `http://localhost:5080/docs` | **Docs home** — card grid of modules, each links to its Scalar UI |
+| `http://localhost:5080/scalar` | Combined Scalar UI (all modules) |
+| `http://localhost:5080/scalar/{slug}` | Per-module Scalar UI (e.g. `/scalar/hesap`, `/scalar/settlement`) |
+| `http://localhost:5080/openapi/v1.json` | Combined OpenAPI document (all modules) |
+| `http://localhost:5080/openapi/{slug}.json` | Per-module OpenAPI document (only that module's routes) |
+| `http://localhost:5080/api/v1/metadata` | licensed modules (slug, name, version, icon) + permissions |
 | `http://localhost:5080/health/live`, `/health/ready` | health probes |
 | `http://localhost:5080/metrics` | Prometheus metrics |
 
-Run with `make run` (host listens on `http://localhost:5080`).
+Run with `make run` (host listens on `http://localhost:5080`); start at **`/docs`**.
 
-## Sidebar navigation (module → resource → method)
+## Per-module vs combined docs
 
-The Scalar sidebar is a **module → resource → method** tree. `TagGroupsDocumentTransformer`
-re-tags every operation with its `{resource}` (parsed from the route) and emits the
-`x-tagGroups` OpenAPI extension grouping resources under their module's Turkish
-`DisplayName` (e.g. group **Hesap** → `users`, `roles`, …; group **Yerleşim** →
-`provinces`, `districts`, …). New modules/resources appear automatically — no manual
-tagging needed, since grouping is derived from the `/api/v{n}/{module}/{resource}` route.
-The sidebar starts **collapsed** (`ScalarOptions.DefaultOpenAllTags = false`): expand a
-module group → a resource → its methods.
+Each enabled module has its **own** OpenAPI document and Scalar UI, plus a combined view:
+
+- **`/docs`** is the entry point: a responsive, mobile-friendly card grid (`DocsHomePage`)
+  showing each module's `Icon` + `DisplayName` + version. A card opens that module's
+  Scalar at `/scalar/{slug}`; a leading **"Tüm Modüller"** card opens the combined
+  `/scalar`.
+- **Per-module document** (`/openapi/{slug}.json`) is scoped to that module's
+  `/api/v*/{slug}/*` routes via `OpenApiOptions.ShouldInclude`. Its sidebar is the
+  default **controller → method** list.
+- **Combined document** (`/openapi/v1.json`) contains every module. Tagging is the
+  **default controller-based** list (e.g. `Users`, `Roles`, `Provinces`) — there is **no**
+  custom `x-tagGroups` module grouping, since the per-module documents already separate
+  modules.
+
+The route→module filter (parsed by `ModuleRoute`) only decides which document an endpoint
+belongs to; tags come from the controller. New modules/resources appear automatically. The
+per-module documents are registered after module discovery via `AddKentosModuleDocs` in
+`Program.cs`.
 
 ## Routing & versioning (mandatory shape)
 

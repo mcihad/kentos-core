@@ -262,20 +262,39 @@ See `docs/modules/hesap.md` and `docs/auth.md` for the full operation guide.
 - Each action has `[RequiresPermission(...)]` (except `[AllowAnonymous]` auth
   endpoints) and `[EndpointSummary("Türkçe özet")]`; add `[ProducesResponseType]`.
 - OpenAPI: `PermissionOperationTransformer` adds `x-required-permission`;
-  `BearerSecuritySchemeTransformer` adds the HTTP Bearer scheme; Scalar UI at `/scalar`.
-- `/api/v1/metadata` lists licensed modules + permissions.
-- `/metrics` (Prometheus), `/health/live`, `/health/ready`.
+  `BearerSecuritySchemeTransformer` adds the HTTP Bearer scheme.
+- **Per-module API docs.** Each enabled module gets its own OpenAPI document
+  (`/openapi/{slug}.json`, scoped by route via `OpenApiOptions.ShouldInclude`) and its
+  own Scalar UI (`/scalar/{slug}`). A combined document (`/openapi/v1.json`) + Scalar
+  (`/scalar`) still covers all modules. Tagging is the **default controller-based** list
+  (no custom grouping): the per-module split already separates modules, so there is no
+  `x-tagGroups`. Per-module documents are registered after module discovery via
+  `AddKentosModuleDocs(modules)` in `Program.cs`; the route→slug filter lives in
+  `ModuleRoute`.
+- **`/docs`** is the docs home: a responsive, mobile-friendly card grid (rendered by
+  `DocsHomePage`) linking each module's `Icon` + `DisplayName` to its Scalar UI.
+- `/api/v1/metadata` lists licensed modules (slug, display name, version, **icon**) +
+  permissions.
+- `/metrics` (Prometheus). **`/health/live`** = liveness (no external deps — a DB blip must
+  not fail it). **`/health/ready`** = readiness (runs checks tagged `ready`, e.g. Postgres);
+  gate load-balancer/orchestrator traffic on this one.
+- **Rate limiting:** the anonymous `/hesap/auth/*` endpoints carry
+  `[EnableRateLimiting(ApiExtensions.AuthRateLimitPolicy)]` (per-client-IP fixed window) to
+  blunt brute-force. Rejections are 429 with `Retry-After` and the RFC7807 shape
+  (`errorCode: "rate_limited"`).
 
 ---
 
 ## 8. Modules & licensing
 
-`IModule` (Slug, DisplayName, Version, LicenseKey, Permissions, Register). At startup
+`IModule` (Slug, DisplayName, **Icon**, Version, LicenseKey, Permissions, Register). At startup
 `ModuleLoader.DiscoverEnabledModules` loads `Kentos.Modules.*.dll`, keeps modules whose
 `LicenseKey` is null (**core**, e.g. Hesap) or whose slug is in `License:EnabledModules`.
 The host calls `module.Register(...)`, adds the module assembly as an MVC
 `ApplicationPart`, registers `ModuleRegistry`, scans Mapster `IRegister`s, and includes
-the assembly in Wolverine discovery.
+the assembly in Wolverine discovery. `Icon` is **inline SVG markup** (Lucide-style,
+`viewBox="0 0 24 24"`, `stroke="currentColor"` so it recolors via CSS) shown on the
+`/docs` home and exposed by `/api/v1/metadata`.
 
 ---
 
@@ -382,8 +401,77 @@ environment** (the committed value is dev-only).
 
 ### Per module (new module)
 - [ ] Canonical directory tree (§3); project references `Infrastructure` only.
-- [ ] `IModule` implemented (English slug; `LicenseKey` null only for core infra like Hesap).
+- [ ] `IModule` implemented (English slug; **Turkish `DisplayName`**; `Icon` inline SVG;
+      `LicenseKey` null only for core infra like Hesap).
 - [ ] `AddModuleDbContext<TCtx>` in `Register`; design-time factory mirrors runtime options.
 - [ ] Wired into `Kentos.Host` + `Kentos.AdminCli` (ProjectReference) and, if licensed,
       `License:EnabledModules` in `appsettings.json` + `.env.example`.
 - [ ] Technical doc added under `docs/modules/<slug>.md`.
+
+---
+
+## 16. Platform & operational contract (locked decisions)
+
+These cross-cutting decisions are **fixed**; code to them and don't silently break them.
+
+### Deployment shape — **single instance (vertical scale), single tenant**
+- The app runs as **one node**. The following bake in that assumption — they are correct
+  now but **must be revisited before ever running a second instance**:
+  - `RolePermissionResolver` caches the role→permission map **in-process**;
+    `IPermissionCacheInvalidator` only invalidates the local process. N nodes ⇒ stale
+    permissions until you add distributed invalidation (e.g. Redis pub/sub or DB polling).
+  - ASP.NET **DataProtection keys are in-process** (default). N nodes ⇒ add a shared key ring.
+  - `Database:MigrateOnStartup=true` is safe for one node; N nodes race ⇒ gate migrations
+    behind a single migrator step.
+- **Single tenant:** no `tenant_id` on `BaseEntity`, no tenant query filter. Multi-tenancy
+  would be an early, invasive change — do **not** retrofit ad-hoc; revisit `BaseEntity` +
+  global filters deliberately if the requirement appears.
+
+### Time — store UTC, display local
+- Persist UTC (`TimeProvider.GetUtcNow()`, `DateTimeOffset` → `timestamptz`). **Never** store
+  naive local time. Display is localised at the edges: Postgres session timezone
+  (`Europe/Istanbul`, set cluster-wide + `ALTER DATABASE`), the app process (`TZ` in
+  `make run`/prod), and nginx. API JSON and JWT `exp`/`nbf` stay **UTC** by design; clients
+  localise. Rationale + audit (5651/KVKK) context in [docs/api.md](docs/api.md).
+
+### Health, rate limiting, errors
+- `/health/live` = liveness (no deps); `/health/ready` = readiness (deps tagged `ready`).
+- Anonymous auth endpoints are rate-limited (`ApiExtensions.AuthRateLimitPolicy`).
+- All error bodies (incl. 429) are RFC7807 `application/problem+json` with `errorCode`.
+
+### Lists — sorting must be a **whitelist**
+- `PagedRequest.Sort` is a client hint, **never** a raw property name bound into the query
+  (injection / breakage risk). Each list service maps `Sort` through an explicit per-resource
+  allow-list of sortable fields and falls back to a deterministic default. A field not on the
+  list is ignored, not echoed into EF. (Today most services hard-code `OrderBy` and ignore
+  `Sort` — when you honour `Sort`, do it via the whitelist.)
+
+### Frontend client — generated, never hand-written
+- The frontend (`frontend/shared`) consumes **generated** per-module clients: `make gen-frontend`
+  reads each `/openapi/{slug}.json`, emits typed models, an SDK, and TanStack Query hooks — all
+  carrying the required permission as `@permission` JSDoc — and writes backend changes (new
+  endpoints/fields) to `frontend/TODO.md` for the other side to complete. `/create-resource` and
+  `/update-resource` run this as their final step — so server and client never silently diverge.
+
+### Writes — idempotency
+- Outbox delivery is **at-least-once**, so event consumers must be **idempotent** (safe to run
+  twice: upsert / check-before-insert / dedup key). For externally-triggered POSTs that create
+  resources, prefer an idempotency key when the caller can retry.
+
+### Secrets & config
+- **No real secrets in the repo.** `Jwt:SigningKey` in `appsettings.json` is dev-only and
+  **must** be overridden per environment (env var / secret store). Same for connection strings.
+
+### To stand up (not yet in the repo — add before heavy feature work)
+- **CI** (`.github/workflows`): build + `make test` + `dotnet format --verify-no-changes` +
+  EF **migration drift** (`migrations has pending model changes` = fail) + `permissions.json`
+  diff. Green CI is the merge gate that makes this contract self-enforcing.
+- **Architecture tests** (NetArchTest): fail the build if a module references another module,
+  if `Domain` references `Infrastructure`, or if `Api` references another module — turning the
+  "modules never reference each other" rule (§3) into an executable check.
+- **Observability depth:** a domain `Meter`/`ActivitySource` convention (logins, 401/403
+  rate, command latency, outbox depth), Serilog enriched with `trace_id`/`span_id` for
+  Loki↔Jaeger pivots, and Prometheus **alert rules** (error rate, p99 latency, DB down,
+  outbox backlog).
+- **Retention & backup runbook** for the audit/error/log stores (5651/KVKK): documented
+  retention windows + a DB backup/restore procedure.

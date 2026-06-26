@@ -1,8 +1,10 @@
 using Asp.Versioning;
+using Kentos.Infrastructure.DependencyInjection;
 using Kentos.Modules.Hesap.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Kentos.Modules.Hesap.Api;
 
@@ -10,6 +12,7 @@ namespace Kentos.Modules.Hesap.Api;
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/hesap/auth")]
 [AllowAnonymous]
+[EnableRateLimiting(ApiExtensions.AuthRateLimitPolicy)]
 public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _auth;

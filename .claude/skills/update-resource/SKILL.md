@@ -88,6 +88,15 @@ If you added/changed permissions, restart the app (`make run`) so `HesapSeeder`
 upserts the new keys into `hesap.yetkiler`; then grant them to roles via
 `PUT /api/v1/hesap/roles/{id}/permissions` (the `yonetici` role already gets all).
 
+## 6. Regenerate the frontend client (MANDATORY — keeps both sides in sync)
+With the app running:
+```bash
+make gen-frontend    # regenerates frontend/shared SDK + TanStack Query hooks from OpenAPI
+```
+Added/renamed/removed fields and any new/changed endpoints (with their `@permission`) are
+written to **`frontend/TODO.md`** so the frontend side can complete the matching work and
+clear the file. Client models/services/hooks are generated — never hand-edited.
+
 ## Gotchas
 
 - Keep all six layers in sync — a field added to the entity but missing from the DTO

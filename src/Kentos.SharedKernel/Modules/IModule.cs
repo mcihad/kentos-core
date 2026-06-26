@@ -17,6 +17,13 @@ public interface IModule
     /// <summary>Human-readable display name, e.g. "Settlement".</summary>
     string DisplayName { get; }
 
+    /// <summary>
+    /// Inline SVG markup used as the module's icon on the docs home page. A URL is also
+    /// acceptable, but inline SVG is preferred so it can be recolored via CSS
+    /// <c>currentColor</c>.
+    /// </summary>
+    string Icon { get; }
+
     /// <summary>Module version (SemVer), e.g. "1.0.0".</summary>
     string Version { get; }
 
