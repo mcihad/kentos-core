@@ -80,9 +80,14 @@ public sealed class {Resource}Service({Ctx} db, IMapper mapper) : I{Resource}Ser
 FK lookups resolve the parent by `Uuid` and set the navigation. Geometry uses
 `GeometryParser` + `IOptions<GeoOptions>` (see `NeighborhoodService`).
 
-## 6. Use-cases (thin handlers) — `Application/{ResourcePlural}/`
-One file per operation: the command/query record, an `AbstractValidator` with
-**Turkish** `.WithMessage(...)`, and a **static** handler that just delegates:
+## 6. Writes go through Wolverine; reads don't
+
+**Reads** (get/list) need no command/handler — the controller calls the service directly.
+List uses a plain `[FromQuery]` request class (`List{Resource}Query : PagedRequest`).
+
+**Writes** — one file per operation in `Application/{ResourcePlural}/`: the command record
+(`ICommand<T>`), an `AbstractValidator` with **Turkish** `.WithMessage(...)`, and a static
+handler that calls the service and (for creates) publishes a domain event:
 ```csharp
 public sealed record Create{Resource}Command(string Name) : ICommand<{Resource}Response>;
 
@@ -95,15 +100,37 @@ public sealed class Create{Resource}CommandValidator : AbstractValidator<Create{
 
 public static class Create{Resource}Handler
 {
-    public static Task<{Resource}Response> Handle(Create{Resource}Command command, I{Resource}Service service, CancellationToken ct)
-        => service.CreateAsync(command, ct);
+    public static async Task<{Resource}Response> Handle(
+        Create{Resource}Command command, I{Resource}Service service, IMessageBus bus, CancellationToken ct)
+    {
+        var result = await service.CreateAsync(command, ct);
+        await bus.PublishAsync(new {Resource}Created(result.Id, result.Name));
+        return result;
+    }
 }
 ```
+A write with no validation **and** no event (e.g. `delete`) skips the bus — the controller
+calls the service directly.
+
+## 6b. Domain event + consumer — `Events/`
+```csharp
+// SettlementEvents-style record:
+public sealed record {Resource}Created(Guid Id, string Name);
+
+// Consumer — INSTANCE class, name ends "Handler", a single Handle (Wolverine discovery):
+public sealed class {Resource}CreatedHandler(ILogger<{Resource}CreatedHandler> logger)
+{
+    public void Handle({Resource}Created message) =>
+        logger.LogInformation("[event] ... {Name}", message.Name);
+}
+```
+The decoupled consumer is what makes Wolverine worth having (read-models, cache, cross-module).
 
 ## 7. Controller — `Api/{ResourcePlural}Controller.cs`
-Route `/api/v{version:apiVersion}/{module}/{resources}`; each action
-`[RequiresPermission({Module}Permissions.{Resource}.X)]` + `[EndpointSummary("Türkçe özet")]`,
-delegating via `IMessageBus.InvokeAsync<...>`.
+`(I{Resource}Service service, IMessageBus bus)`. Route
+`/api/v{version:apiVersion}/{module}/{resources}`; each action
+`[RequiresPermission({Module}Permissions.{Resource}.X)]` + `[EndpointSummary("Türkçe özet")]`.
+**Reads** call `service.…`; **writes** call `bus.InvokeAsync<…>(command)`.
 
 ## 8. Permissions — `Permissions/{Module}Permissions.cs`
 Nested `public static class {Resource}` with English `const` keys; append

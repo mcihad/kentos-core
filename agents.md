@@ -120,29 +120,42 @@ A design-time `IDesignTimeDbContextFactory` enables `dotnet ef`.
 
 ---
 
-## 5. CQRS / Wolverine + service layer
+## 5. Reads, writes, services & Wolverine
 
-- Controllers inject `Wolverine.IMessageBus` and call
-  `bus.InvokeAsync<TResponse>(command, ct)`.
-- Commands/queries are records implementing `ICommand<T>` / `IQuery<T>`.
-- Handlers are **static** classes with a static `Handle(...)` that **delegate to a
-  per-resource application service** (`I{Resource}Service` in the module's `Services/`).
-  The service holds the data/business logic (DbContext, IMapper, geometry, etc.); the
-  handler is a one-line CQRS adapter that still gets Wolverine's validation middleware.
-  Services are registered scoped in the module's `Register`
-  (`services.AddScoped<INeighborhoodService, NeighborhoodService>()`).
-- Validators are `AbstractValidator<T>`; registered per module
-  (`services.AddValidatorsFromAssembly(...)`), run by Wolverine's FluentValidation
-  middleware → `ValidationException` → 400.
-- `MessagingExtensions.Configure` sets `ServiceLocationPolicy.AlwaysAllowed`
-  (handlers receive DI services that need service location) and
-  `IncludeAssembly(moduleAssembly)` **once per module**. Do **not** double-include
-  (that registers the handler twice → double execution).
-- Runtime codegen requires `WolverineFx.RuntimeCompilation` (referenced in
-  Infrastructure).
+The role split — and the reason Wolverine is in the stack:
 
-One file per use-case (`CreateNeighborhood.cs` holds the command + validator +
-handler). DTOs live in `<Resource>Response.cs`.
+- **Services** (`Services/I{Resource}Service` + impl, registered scoped in the module's
+  `Register`) hold all data/business logic (DbContext, Mapster, geometry). Reusable,
+  directly callable, unit-test friendly.
+- **Reads (queries) bypass Wolverine.** The controller injects the service and calls it
+  directly (`service.GetByIdAsync` / `ListAsync`). No message-bus ceremony for reads;
+  list/query records are plain `[FromQuery]` request classes.
+- **Writes (commands) go through Wolverine** (`bus.InvokeAsync<T>(command)`):
+  1. Wolverine runs the FluentValidation middleware → `ValidationException` → 400.
+  2. The command handler (static `Handle`) calls the service, then **publishes a domain
+     event**: `await bus.PublishAsync(new XCreated(...))`.
+  3. A write with neither validation nor an event (e.g. `delete`) calls the service
+     directly instead — don't route it through the bus just for ceremony.
+- **Domain events** are records (module-local, or in SharedKernel when cross-module).
+  **Consumers** are **instance** classes named `{Event}Handler` with a single
+  `Handle({Event} message, deps...)`. Wolverine routes the published event to the
+  decoupled consumer via a local queue — the producer never references it. This is the
+  modular-monolith decoupling mechanism (read-model updates, cache invalidation,
+  notifications, cross-module reactions).
+  - Discovery is by type-name suffix: a consumer class **must** end in `Handler`/`Consumer`
+    and have a single `Handle` (avoid several overloaded `Handle` methods in one class —
+    they are not discovered).
+- Events are **in-process** today; for production reliability enable the Postgres
+  transactional outbox (`PersistMessagesWithPostgresql` + EF integration) so the event is
+  persisted in the same transaction as the write.
+- `MessagingExtensions.Configure` sets `ServiceLocationPolicy.AlwaysAllowed`,
+  `UseFluentValidation(RegistrationBehavior.ExplicitRegistration)` (validators are
+  registered once per module via `AddValidatorsFromAssembly`; explicit registration
+  avoids duplicate validation messages), and `IncludeAssembly(moduleAssembly)` **once**.
+  Runtime codegen requires `WolverineFx.RuntimeCompilation`.
+
+One file per use-case (`CreateNeighborhood.cs` = command + validator + handler). DTOs in
+`<Resource>Response.cs`; events in `Events/`.
 
 ---
 
@@ -253,16 +266,21 @@ These are automated by the skills `/create-module`, `/create-resource`,
 4. `dotnet ef migrations add <Name> --project <module> --startup-project Kentos.Host --context <Ctx> -o Infrastructure/Migrations`.
 
 ### Add a use-case + endpoint
-1. `Services/<Resource>Service.cs`: add the method (logic) to `I<Resource>Service` + impl.
-2. `Application/<Resource>/<Verb><Resource>.cs`: command/query record (`ICommand<T>`),
-   `AbstractValidator` (**Turkish** messages), static `Handler` that delegates to the service.
-3. `Application/<Resource>/<Resource>Response.cs` (English fields).
-4. `Mappings/<Resource>Mapping.cs` : `IRegister` (map `Uuid`→`Id`, parent FK→parent `Uuid`).
-5. Controller action: `[RequiresPermission("<key>")]`, `[EndpointSummary("Türkçe özet")]`,
-   `bus.InvokeAsync<T>(...)`.
-6. Add the permission (English key, **Turkish** title) to the module's `Permissions`, then
+1. `Services/<Resource>Service.cs`: add the method (the actual logic) to
+   `I<Resource>Service` + impl. `<Resource>Response.cs` (English fields) +
+   `Mappings/<Resource>Mapping.cs` (`Uuid`→`Id`, parent FK→parent `Uuid`).
+2. **Read** (get/list): controller injects the service and calls it directly — no
+   command/handler. List uses a plain `[FromQuery]` request class.
+3. **Write** (create/update): `Application/<Resource>/<Verb><Resource>.cs` = command
+   record (`ICommand<T>`) + `AbstractValidator` (**Turkish** messages) + static `Handler`
+   that calls the service and, for creates, `bus.PublishAsync(new <Resource>Created(...))`.
+   A consumer `Events/<Resource>CreatedHandler.cs` (instance class) reacts. A write with
+   no validation/event (delete) calls the service directly.
+4. Controller action: `[RequiresPermission("<key>")]`, `[EndpointSummary("Türkçe özet")]`;
+   reads → service, writes → `bus.InvokeAsync<T>(...)`.
+5. Add the permission (English key, **Turkish** title) to the module's `Permissions`, then
    `make permissions-scan` (+ `make permissions-sync` when Keycloak is up).
-7. **Tests are mandatory**: add integration cases (mirror `SettlementApiTests`) and unit
+6. **Tests are mandatory**: integration cases (mirror `SettlementApiTests`) + unit
    validator/mapping tests; `make test` must stay green.
 
 ### Add a module
