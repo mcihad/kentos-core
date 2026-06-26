@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <!-- Uses the ASP.NET Core shared framework for Generic Host + HttpClientFactory. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Kentos.SharedKernel\Kentos.SharedKernel.csproj" />
+    <!-- Modules referenced so `permissions scan` can discover their PermissionDefinitions. -->
+    <ProjectReference Include="..\..\src\Modules\Kentos.Modules.Settlement\Kentos.Modules.Settlement.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console.Cli" />
+    <PackageReference Include="DotNetEnv" />
+  </ItemGroup>
+
+</Project>

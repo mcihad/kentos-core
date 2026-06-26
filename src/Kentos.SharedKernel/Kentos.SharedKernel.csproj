@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    SharedKernel: domain primitives + cross-module contracts. No DB, no infrastructure.
+    Uses the ASP.NET Core shared framework only for the abstractions IModule needs
+    (IServiceCollection / IConfiguration / IHostEnvironment).
+  -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

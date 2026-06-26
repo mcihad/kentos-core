@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Kentos.Host/Kentos.Host.csproj" />
+    <Project Path="src/Kentos.Infrastructure/Kentos.Infrastructure.csproj" />
+    <Project Path="src/Kentos.SharedKernel/Kentos.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Kentos.Modules.Settlement/Kentos.Modules.Settlement.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Kentos.Api.IntegrationTests/Kentos.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Kentos.Modules.Settlement.IntegrationTests/Kentos.Modules.Settlement.IntegrationTests.csproj" />
+    <Project Path="tests/Kentos.Modules.Settlement.UnitTests/Kentos.Modules.Settlement.UnitTests.csproj" />
+    <Project Path="tests/Kentos.TestShared/Kentos.TestShared.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Kentos.AdminCli/Kentos.AdminCli.csproj" />
+  </Folder>
+</Solution>

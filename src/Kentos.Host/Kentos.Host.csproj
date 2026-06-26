@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kentos.Infrastructure\Kentos.Infrastructure.csproj" />
+    <!-- Modules referenced at compile time; activated at runtime by license. -->
+    <ProjectReference Include="..\Modules\Kentos.Modules.Settlement\Kentos.Modules.Settlement.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

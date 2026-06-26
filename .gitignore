@@ -1,0 +1,27 @@
+# .NET
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+artifacts/
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# Environment / secrets
+.env
+*.env.local
+keycloak-provision.log
+keycloak/kentos-realm.export.json
+
+# Test results
+TestResults/
+coverage*.xml
+*.trx
+
+# OS
+.DS_Store
+Thumbs.db

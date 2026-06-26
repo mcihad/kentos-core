@@ -1,0 +1,99 @@
+{
+  "generatedAt": "2026-06-26T03:53:12.0320094\u002B00:00",
+  "modules": [
+    {
+      "slug": "settlement",
+      "displayName": "Settlement",
+      "permissions": [
+        {
+          "key": "settlement.province.list",
+          "module": "settlement",
+          "resource": "province",
+          "action": "list",
+          "title": "List provinces",
+          "description": null
+        },
+        {
+          "key": "settlement.province.view",
+          "module": "settlement",
+          "resource": "province",
+          "action": "view",
+          "title": "View province",
+          "description": null
+        },
+        {
+          "key": "settlement.province.create",
+          "module": "settlement",
+          "resource": "province",
+          "action": "create",
+          "title": "Create province",
+          "description": null
+        },
+        {
+          "key": "settlement.district.list",
+          "module": "settlement",
+          "resource": "district",
+          "action": "list",
+          "title": "List districts",
+          "description": null
+        },
+        {
+          "key": "settlement.district.view",
+          "module": "settlement",
+          "resource": "district",
+          "action": "view",
+          "title": "View district",
+          "description": null
+        },
+        {
+          "key": "settlement.district.create",
+          "module": "settlement",
+          "resource": "district",
+          "action": "create",
+          "title": "Create district",
+          "description": null
+        },
+        {
+          "key": "settlement.neighborhood.list",
+          "module": "settlement",
+          "resource": "neighborhood",
+          "action": "list",
+          "title": "List neighborhoods",
+          "description": null
+        },
+        {
+          "key": "settlement.neighborhood.view",
+          "module": "settlement",
+          "resource": "neighborhood",
+          "action": "view",
+          "title": "View neighborhood",
+          "description": null
+        },
+        {
+          "key": "settlement.neighborhood.create",
+          "module": "settlement",
+          "resource": "neighborhood",
+          "action": "create",
+          "title": "Create neighborhood",
+          "description": null
+        },
+        {
+          "key": "settlement.neighborhood.update",
+          "module": "settlement",
+          "resource": "neighborhood",
+          "action": "update",
+          "title": "Update neighborhood",
+          "description": null
+        },
+        {
+          "key": "settlement.neighborhood.delete",
+          "module": "settlement",
+          "resource": "neighborhood",
+          "action": "delete",
+          "title": "Delete neighborhood",
+          "description": null
+        }
+      ]
+    }
+  ]
+}
