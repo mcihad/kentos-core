@@ -66,9 +66,32 @@ in `License:EnabledModules`. For each kept module the host:
 3. registers `ModuleRegistry`, scans Mapster `IRegister`s, includes the assembly in
    Wolverine discovery.
 
-After build, `Program.cs` applies migrations (dev) and runs `HesapSeeder` (idempotent):
-it upserts every enabled module's `IModule.Permissions` into `hesap.yetkiler` and
-bootstraps the admin role + user.
+## Startup sequence (`Program.cs`)
+
+After `builder.Build()`, in order:
+
+1. **EF migrations** — applied when `Database:MigrateOnStartup` is true (the default, all
+   environments). Set it to `false` only if you apply migrations out-of-band; the schema
+   must then already exist before startup.
+2. **Seeding** — `HesapSeeder` (idempotent) runs *after* migrations, so the `hesap` schema
+   is guaranteed to exist. It upserts every enabled module's `IModule.Permissions` into
+   `hesap.yetkiler` and bootstraps the admin role + user.
+3. **Wolverine message store** — created on startup via `AddResourceSetupOnStartup()`
+   (schema `mesajlasma`).
+
+## Messaging & the durable outbox
+
+Writes go through Wolverine (`bus.InvokeAsync`) and publish domain events
+(`bus.PublishAsync`). Wolverine uses a **durable Postgres outbox**
+(`PersistMessagesWithPostgresql` + `Policies.AutoApplyTransactions()`): published events
+are persisted, retried and dead-lettered, and survive a process restart — not in-memory
+only. Consumers (`{Event}Handler`) react decoupled.
+
+> Nuance: handlers here do their EF `SaveChanges` inside the service, then publish. The
+> event is persisted to the outbox at the end of the handler's transaction, so delivery is
+> **at-least-once and restart-safe**. For *strict* write↔event atomicity (one DB
+> transaction spanning the entity write and the outbox), pass the `DbContext` into the
+> handler and enable `UseEntityFrameworkCoreTransactions()`.
 
 ## Identity model (BaseEntity)
 

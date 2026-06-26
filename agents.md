@@ -201,12 +201,14 @@ The role split — and the reason Wolverine is in the stack:
   decoupling mechanism (read-model updates, cache invalidation, notifications,
   cross-module reactions). Discovery is by type-name suffix (`Handler`/`Consumer`) +
   a single `Handle` — avoid overloaded `Handle` methods in one class.
-- Events are **in-process** today; for production reliability enable the Postgres
-  transactional outbox so the event persists in the write's transaction.
-- `MessagingExtensions.Configure` sets `ServiceLocationPolicy.AlwaysAllowed`,
-  `UseFluentValidation(RegistrationBehavior.ExplicitRegistration)` (validators
-  registered once per module via `AddValidatorsFromAssembly`), and
-  `IncludeAssembly(moduleAssembly)` once. Runtime codegen needs
+- Messages use a **durable Postgres outbox** (`PersistMessagesWithPostgresql` +
+  `Policies.AutoApplyTransactions()`, schema `mesajlasma`): published events are
+  persisted, retried, dead-lettered and survive restarts (not in-memory only). Wolverine's
+  store is created on startup via `AddResourceSetupOnStartup()`.
+- `MessagingExtensions.Configure(options, postgresConnectionString, moduleAssemblies)` sets
+  `ServiceLocationPolicy.AlwaysAllowed`, `UseFluentValidation(RegistrationBehavior.ExplicitRegistration)`
+  (validators registered once per module via `AddValidatorsFromAssembly`),
+  `IncludeAssembly(moduleAssembly)` once, and the outbox above. Runtime codegen needs
   `WolverineFx.RuntimeCompilation`.
 
 One file per use-case (`CreateNeighborhood.cs` = command + validator + handler). DTOs in

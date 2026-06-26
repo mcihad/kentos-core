@@ -1,3 +1,4 @@
+using JasperFx.Resources;
 using Kentos.Infrastructure.DependencyInjection;
 using Kentos.Infrastructure.Modules;
 using Kentos.Infrastructure.Persistence;
@@ -30,7 +31,12 @@ var moduleAssemblies = modules.Select(m => m.GetType().Assembly).Distinct().ToAr
 builder.Services.AddSingleton(new ModuleRegistry(modules));
 builder.Services.AddKentosMapping(moduleAssemblies);
 
-builder.Host.UseWolverine(options => MessagingExtensions.Configure(options, moduleAssemblies));
+var postgresConnectionString = builder.Configuration.GetConnectionString(PersistenceExtensions.PostgresConnectionName);
+builder.Host.UseWolverine(options => MessagingExtensions.Configure(options, postgresConnectionString, moduleAssemblies));
+
+// Create Wolverine's durable message-store schema/tables (and any other stateful
+// resources) on startup so the outbox works in every environment.
+builder.Services.AddResourceSetupOnStartup();
 
 var app = builder.Build();
 
@@ -38,12 +44,15 @@ AuditExtensions.ConfigureAuditNet(app.Services);
 
 app.UseKentosRequestLogging();
 
-if (app.Environment.IsDevelopment())
+// Apply EF migrations on startup (default on). Set Database:MigrateOnStartup=false when
+// migrations are applied out-of-band; the schema must already exist before startup then.
+if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 {
     await MigrationRunner.MigrateAllAsync(app.Services);
 }
 
 // Idempotent: upserts the permission catalog and bootstraps the admin role/user.
+// Runs after migrations so the Hesap schema is guaranteed to exist.
 await HesapSeeder.SeedAsync(app.Services);
 
 app.UseKentosApi();
