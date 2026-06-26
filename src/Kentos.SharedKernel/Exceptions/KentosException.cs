@@ -54,6 +54,17 @@ public sealed class BusinessRuleException : KentosException
     public override int StatusCode => 422;
 }
 
+/// <summary>Authentication failed / missing (401).</summary>
+public sealed class UnauthorizedException : KentosException
+{
+    public UnauthorizedException(string message = "Kimlik doğrulama başarısız.") : base(message)
+    {
+    }
+
+    public override string ErrorCode => "unauthorized";
+    public override int StatusCode => 401;
+}
+
 /// <summary>Authorization denied (403).</summary>
 public sealed class ForbiddenException : KentosException
 {

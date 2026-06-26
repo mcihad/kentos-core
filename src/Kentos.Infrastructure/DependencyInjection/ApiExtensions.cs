@@ -2,9 +2,9 @@ using Asp.Versioning;
 using Kentos.Infrastructure.OpenApi;
 using Kentos.Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 namespace Kentos.Infrastructure.DependencyInjection;
@@ -15,6 +15,16 @@ public static class ApiExtensions
     public static IServiceCollection AddKentosApi(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
+
+        // Honor X-Forwarded-* from the reverse proxy so the real client IP/scheme reach
+        // the app (access logs, audit actor IP, redirects). KnownProxies/Networks are
+        // cleared to trust the local proxy in dev; restrict these in production.
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownIPNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
         services
             .AddApiVersioning(options =>
@@ -47,7 +57,8 @@ public static class ApiExtensions
         services.AddOpenApi("v1", options =>
         {
             options.AddOperationTransformer<PermissionOperationTransformer>();
-            options.AddDocumentTransformer<KeycloakSecuritySchemeTransformer>();
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            options.AddDocumentTransformer<TagGroupsDocumentTransformer>();
         });
 
         var connectionString = configuration.GetConnectionString(PersistenceExtensions.PostgresConnectionName);
@@ -62,6 +73,7 @@ public static class ApiExtensions
     /// <summary>Wires the standard middleware pipeline and endpoints.</summary>
     public static WebApplication UseKentosApi(this WebApplication app)
     {
+        app.UseForwardedHeaders(); // must run first so the real client IP/scheme are seen downstream
         app.UseExceptionHandler();
         app.UseCors(CorsOptions.PolicyName);
         app.UseAuthentication();
@@ -74,17 +86,13 @@ public static class ApiExtensions
 
         app.MapOpenApi();
 
-        var keycloak = app.Services.GetRequiredService<IOptions<KeycloakOptions>>().Value;
         app.MapScalarApiReference(options =>
         {
+            // Sidebar starts collapsed: expand module group → resource → method.
+            options.DefaultOpenAllTags = false;
             options
-                .WithPreferredScheme("keycloak")
-                .AddAuthorizationCodeFlow("keycloak", flow =>
-                {
-                    flow.ClientId = keycloak.ClientId;
-                    flow.Pkce = Pkce.Sha256;
-                    flow.SelectedScopes = ["openid", "profile"];
-                });
+                .AddPreferredSecuritySchemes("Bearer")
+                .AddHttpAuthentication("Bearer", _ => { });
         });
 
         return app;

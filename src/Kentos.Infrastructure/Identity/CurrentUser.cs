@@ -1,3 +1,4 @@
+using Kentos.SharedKernel.Authorization;
 using Kentos.SharedKernel.Identity;
 using Microsoft.AspNetCore.Http;
 
@@ -7,9 +8,15 @@ namespace Kentos.Infrastructure.Identity;
 public sealed class CurrentUser : ICurrentUser
 {
     private readonly IHttpContextAccessor _accessor;
+    private readonly IPermissionResolver _resolver;
+    private string[]? _roles;
     private string[]? _permissions;
 
-    public CurrentUser(IHttpContextAccessor accessor) => _accessor = accessor;
+    public CurrentUser(IHttpContextAccessor accessor, IPermissionResolver resolver)
+    {
+        _accessor = accessor;
+        _resolver = resolver;
+    }
 
     private HttpContext? Context => _accessor.HttpContext;
 
@@ -22,11 +29,14 @@ public sealed class CurrentUser : ICurrentUser
 
     public string? IpAddress => Context?.Connection.RemoteIpAddress?.ToString();
 
-    public IReadOnlyCollection<string> Permissions => _permissions ??= LoadPermissions();
+    public IReadOnlyCollection<string> Roles => _roles ??= LoadRoles();
+
+    public IReadOnlyCollection<string> Permissions =>
+        _permissions ??= _resolver.ResolvePermissions(Roles).ToArray();
 
     public bool HasPermission(string permission) =>
         Permissions.Contains(permission, StringComparer.Ordinal);
 
-    private string[] LoadPermissions() =>
-        Context?.User.FindAll("permissions").Select(c => c.Value).ToArray() ?? [];
+    private string[] LoadRoles() =>
+        Context?.User.FindAll("roles").Select(c => c.Value).ToArray() ?? [];
 }

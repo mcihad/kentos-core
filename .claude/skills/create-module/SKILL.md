@@ -51,8 +51,10 @@ dotnet sln Kentos.slnx add src/Modules/Kentos.Modules.{Module}
 </Project>
 ```
 
-Create folders: `Domain/Configurations`, `Application`, `Infrastructure`, `Api`,
-`Mappings`, `Permissions`.
+Create the canonical folders (see agents.md §3 for the full tree and §15 for the
+hard compliance checklist): `Domain/Configurations`, `Application`, `Services`,
+`Mappings`, `Events`, `Permissions`, `Infrastructure`, `Api`. Do not invent alternate
+names (e.g. never `Dtos/` instead of `Application/`). `/create-resource` fills these.
 
 ## 3. Module DbContext — `Infrastructure/{Ctx}.cs`
 

@@ -8,8 +8,10 @@ namespace Kentos.TestShared;
 
 /// <summary>
 /// Test authentication handler. Reads the <c>X-Test-User</c> and
-/// <c>X-Test-Permissions</c> headers to build a principal, so integration tests can
-/// exercise authorization without a live Keycloak.
+/// <c>X-Test-Permissions</c> headers to build a principal. Each value in the
+/// permissions header becomes a <c>roles</c> claim; combined with the passthrough
+/// resolver registered in <see cref="ApiFactory"/> (role name == permission key),
+/// this lets integration tests exercise authorization without issuing real tokens.
 /// </summary>
 public sealed class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
@@ -40,9 +42,10 @@ public sealed class TestAuthHandler : AuthenticationHandler<AuthenticationScheme
 
         if (Request.Headers.TryGetValue(PermissionsHeader, out var permissions))
         {
+            // Each permission is emitted as a role; the passthrough resolver maps role → permission 1:1.
             foreach (var permission in permissions.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                claims.Add(new Claim("permissions", permission));
+                claims.Add(new Claim("roles", permission));
             }
         }
 

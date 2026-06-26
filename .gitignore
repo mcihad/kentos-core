@@ -25,3 +25,6 @@ coverage*.xml
 # OS
 .DS_Store
 Thumbs.db
+
+# Local log output (Serilog file sink, nginx access logs)
+logs/

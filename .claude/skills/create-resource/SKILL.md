@@ -159,7 +159,9 @@ make migrate
 make build
 make test                 # ALL green, including the new resource's tests
 make permissions-scan     # permissions.json includes the new keys
-# Keycloak up: make permissions-sync
+# restart the app so HesapSeeder upserts the new keys into hesap.yetkiler,
+# then grant them to a role via PUT /api/v1/hesap/roles/{id}/permissions
+# (the bootstrap 'yonetici' role automatically receives every permission).
 ```
 
 ## Gotchas

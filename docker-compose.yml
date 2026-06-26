@@ -49,8 +49,48 @@ services:
       - "3001:3000"
     volumes:
       - kentos-grafana:/var/lib/grafana
+      # Auto-provision the Prometheus datasource + the starter dashboard.
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./ops/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+      - loki
+
+  # Reverse proxy in front of the host-run API: keeps JSON HTTP access logs (5651) and
+  # forwards the real client IP via X-Forwarded-For. Browse the app through http://localhost:8080.
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: kentos-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs/nginx:/var/log/nginx
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Central log store (queried by Grafana). Retention configured in ops/loki/loki-config.yml.
+  loki:
+    image: grafana/loki:3.2.1
+    container_name: kentos-loki
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./ops/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - kentos-loki:/loki
+
+  # Ships nginx access logs + the API's file logs to Loki.
+  promtail:
+    image: grafana/promtail:3.2.1
+    container_name: kentos-promtail
+    command: ["-config.file=/etc/promtail/promtail-config.yml"]
+    volumes:
+      - ./ops/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - ./logs/nginx:/proxylogs:ro
+      - ./src/Kentos.Host/logs:/applogs:ro
+    depends_on:
+      - loki
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -62,20 +102,8 @@ services:
       - "4317:4317"     # OTLP gRPC
       - "4318:4318"     # OTLP HTTP
 
-  # Optional: run Keycloak in Docker instead of the local install.
-  # Enable with:  docker compose --profile keycloak up -d
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    container_name: kentos-keycloak
-    profiles: ["keycloak"]
-    command: ["start-dev"]
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    ports:
-      - "8080:8080"
-
 volumes:
   kentos-postgres:
   kentos-mongo:
   kentos-grafana:
+  kentos-loki:

@@ -84,7 +84,9 @@ make build
 make test            # all green, including the updated/new tests
 make permissions-scan
 ```
-If you added/changed permissions and Keycloak is up: `make permissions-sync`.
+If you added/changed permissions, restart the app (`make run`) so `HesapSeeder`
+upserts the new keys into `hesap.yetkiler`; then grant them to roles via
+`PUT /api/v1/hesap/roles/{id}/permissions` (the `yonetici` role already gets all).
 
 ## Gotchas
 

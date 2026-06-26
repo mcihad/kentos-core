@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kentos.Infrastructure\Kentos.Infrastructure.csproj" />
+    <!-- Hesap is a core module (authentication); always present. -->
+    <ProjectReference Include="..\Modules\Kentos.Modules.Hesap\Kentos.Modules.Hesap.csproj" />
     <!-- Modules referenced at compile time; activated at runtime by license. -->
     <ProjectReference Include="..\Modules\Kentos.Modules.Settlement\Kentos.Modules.Settlement.csproj" />
   </ItemGroup>

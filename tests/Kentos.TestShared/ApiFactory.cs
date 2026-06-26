@@ -1,16 +1,17 @@
+using Kentos.SharedKernel.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
 namespace Kentos.TestShared;
 
 /// <summary>
-/// Spins up a PostGIS container and boots the real host against it, replacing
-/// Keycloak auth with <see cref="TestAuthHandler"/>.
+/// Spins up a PostGIS container and boots the real host against it, replacing the
+/// self-issued JWT auth with <see cref="TestAuthHandler"/> and a passthrough
+/// permission resolver (role name == permission key).
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -37,7 +38,18 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
                     options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
                 })
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
+
+            // Last registration wins: resolve permissions directly from the role names
+            // the test handler injects (1:1), bypassing the DB-backed resolver.
+            services.AddSingleton<IPermissionResolver, PassthroughPermissionResolver>();
         });
+    }
+
+    /// <summary>Treats each role name as a permission key (test-only).</summary>
+    private sealed class PassthroughPermissionResolver : IPermissionResolver
+    {
+        public IReadOnlySet<string> ResolvePermissions(IEnumerable<string> roles) =>
+            roles.ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>Creates a client authenticated as a test user carrying the given permissions.</summary>
@@ -63,7 +75,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         Environment.SetEnvironmentVariable("License__EnabledModules", "settlement");
         Environment.SetEnvironmentVariable("Audit__Provider", "Postgres");
         Environment.SetEnvironmentVariable("OpenTelemetry__OtlpEndpoint", "");
-        Environment.SetEnvironmentVariable("Keycloak__RequireHttpsMetadata", "false");
     }
 
     async Task IAsyncLifetime.DisposeAsync()

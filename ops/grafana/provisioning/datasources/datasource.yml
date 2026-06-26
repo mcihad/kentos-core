@@ -1,0 +1,19 @@
+# Auto-provisions the Prometheus datasource so Grafana works out of the box.
+# Grafana reaches Prometheus by its compose service name on the shared network.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true

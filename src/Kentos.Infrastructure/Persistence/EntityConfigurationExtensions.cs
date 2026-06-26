@@ -1,3 +1,4 @@
+using System.Reflection;
 using Kentos.SharedKernel.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,6 +12,30 @@ namespace Kentos.Infrastructure.Persistence;
 /// </summary>
 public static class EntityConfigurationExtensions
 {
+    private static readonly MethodInfo SetSoftDeleteFilterMethod =
+        typeof(EntityConfigurationExtensions).GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    /// <summary>
+    /// Applies the named "SoftDelete" query filter to every <see cref="ISoftDeletable"/>
+    /// root entity. Must be called AFTER all configurations are applied (so the loop
+    /// sees every configured entity). Shared by all module DbContexts (both the plain
+    /// <see cref="KentosDbContext"/> and Identity-based contexts).
+    /// </summary>
+    public static void ApplySoftDeleteFilters(this ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.BaseType is null && typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
+            {
+                SetSoftDeleteFilterMethod.MakeGenericMethod(entityType.ClrType).Invoke(null, [modelBuilder]);
+            }
+        }
+    }
+
+    private static void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : class, ISoftDeletable
+        => modelBuilder.Entity<TEntity>().HasQueryFilter(KentosDbContext.SoftDeleteFilter, e => !e.IsDeleted);
+
     /// <summary>
     /// Configures the <see cref="BaseEntity"/> columns (id, uuid, version, metadata,
     /// audit, soft-delete) with Turkish column names and Turkish comments.

@@ -15,7 +15,7 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddKentosInfrastructure(
         this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<KeycloakOptions>(configuration.GetSection(KeycloakOptions.SectionName));
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<GeoOptions>(configuration.GetSection(GeoOptions.SectionName));
         services.Configure<AuditOptions>(configuration.GetSection(AuditOptions.SectionName));
         services.Configure<LicenseOptions>(configuration.GetSection(LicenseOptions.SectionName));

@@ -1,4 +1,7 @@
+using System.Diagnostics;
 using Kentos.Infrastructure.Options;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -50,6 +53,35 @@ public static class ObservabilityExtensions
             });
 
         return services;
+    }
+
+    /// <summary>
+    /// Serilog HTTP request logging enriched with the fields needed for access-log /
+    /// audit purposes: client IP, user, user-agent, host and trace id. One structured
+    /// line per request, written to every configured sink (Console + rolling File).
+    /// </summary>
+    public static WebApplication UseKentosRequestLogging(this WebApplication app)
+    {
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.MessageTemplate =
+                "HTTP {RequestMethod} {RequestPath} → {StatusCode} ({Elapsed:0.0} ms) from {ClientIp}";
+            options.EnrichDiagnosticContext = (diagnostic, httpContext) =>
+            {
+                diagnostic.Set("ClientIp", httpContext.Connection.RemoteIpAddress?.ToString());
+                diagnostic.Set("UserAgent", httpContext.Request.Headers.UserAgent.ToString());
+                diagnostic.Set("RequestHost", httpContext.Request.Host.Value);
+                diagnostic.Set("TraceId", Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier);
+
+                var user = httpContext.User.FindFirst("preferred_username")?.Value;
+                if (!string.IsNullOrEmpty(user))
+                {
+                    diagnostic.Set("UserName", user);
+                }
+            };
+        });
+
+        return app;
     }
 
     /// <summary>Registers Serilog as the logging provider, reading from configuration.</summary>

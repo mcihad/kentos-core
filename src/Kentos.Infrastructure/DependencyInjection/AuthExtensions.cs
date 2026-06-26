@@ -1,5 +1,7 @@
+using System.Text;
 using Kentos.Infrastructure.Authorization;
 using Kentos.Infrastructure.Options;
+using Kentos.SharedKernel.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -8,33 +10,28 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Kentos.Infrastructure.DependencyInjection;
 
-/// <summary>Keycloak JWT authentication + permission-based authorization wiring.</summary>
+/// <summary>Self-issued JWT authentication + role-resolved permission authorization wiring.</summary>
 public static class AuthExtensions
 {
     public static IServiceCollection AddKentosAuthentication(
         this IServiceCollection services, IConfiguration configuration)
     {
-        var keycloak = configuration.GetSection(KeycloakOptions.SectionName).Get<KeycloakOptions>() ?? new KeycloakOptions();
+        var jwt = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey));
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = keycloak.Authority;
-                if (!string.IsNullOrWhiteSpace(keycloak.MetadataAddress))
-                {
-                    options.MetadataAddress = keycloak.MetadataAddress;
-                }
-
-                options.Audience = keycloak.Audience;
-                options.RequireHttpsMetadata = keycloak.RequireHttpsMetadata;
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = keycloak.Authority,
+                    ValidIssuer = jwt.Issuer,
                     ValidateAudience = true,
-                    ValidAudience = keycloak.Audience,
+                    ValidAudience = jwt.Audience,
                     ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = signingKey,
                     NameClaimType = "preferred_username",
                     RoleClaimType = "roles",
                 };
@@ -47,6 +44,11 @@ public static class AuthExtensions
     {
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+        // Fail-closed default; the Hesap module registers a DB-backed resolver that wins
+        // (it registers later, and GetRequiredService returns the last registration).
+        services.AddSingleton<IPermissionResolver, DenyAllPermissionResolver>();
+
         services.AddAuthorization();
         return services;
     }

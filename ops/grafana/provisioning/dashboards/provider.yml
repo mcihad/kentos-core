@@ -1,0 +1,14 @@
+# Loads any dashboard JSON found in /var/lib/grafana/dashboards into the "Kentos" folder.
+apiVersion: 1
+
+providers:
+  - name: Kentos
+    orgId: 1
+    folder: Kentos
+    type: file
+    disableDeletion: false
+    editable: true
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

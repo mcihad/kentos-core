@@ -1,3 +1,4 @@
+using Audit.Core;
 using Audit.EntityFramework;
 using Kentos.Infrastructure.Auditing;
 using Kentos.Infrastructure.Options;
@@ -47,7 +48,55 @@ public static class AuditExtensions
 
         Audit.EntityFramework.Configuration.Setup()
             .ForAnyContext(config => config.IncludeEntityObjects());
+
+        // KVKK: never persist secrets/PII-sensitive columns to the audit trail. Masked
+        // centrally (regardless of entity) just before the audit event is saved.
+        Audit.Core.Configuration.AddOnSavingAction(MaskSensitiveData);
     }
+
+    /// <summary>Column-name fragments whose values must be masked in the audit trail.</summary>
+    private static readonly string[] SensitiveColumnTokens =
+    [
+        "password", "parola", "hash", "secret",
+        "securitystamp", "guvenlik_damgasi", "concurrencystamp", "eszamanlilik", "token",
+    ];
+
+    private static void MaskSensitiveData(AuditScope scope)
+    {
+        var efEvent = scope.GetEntityFrameworkEvent();
+        if (efEvent is null)
+        {
+            return;
+        }
+
+        foreach (var entry in efEvent.Entries)
+        {
+            if (entry.ColumnValues is not null)
+            {
+                foreach (var column in entry.ColumnValues.Keys.ToList())
+                {
+                    if (IsSensitive(column))
+                    {
+                        entry.ColumnValues[column] = "***";
+                    }
+                }
+            }
+
+            if (entry.Changes is null)
+            {
+                continue;
+            }
+
+            foreach (var change in entry.Changes.Where(c => IsSensitive(c.ColumnName)))
+            {
+                change.OriginalValue = "***";
+                change.NewValue = "***";
+            }
+        }
+    }
+
+    private static bool IsSensitive(string columnName) =>
+        SensitiveColumnTokens.Any(token => columnName.Contains(token, StringComparison.OrdinalIgnoreCase));
 
     private static void RegisterMongoClassMaps()
     {

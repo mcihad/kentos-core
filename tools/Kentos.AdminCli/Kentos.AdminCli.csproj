@@ -12,12 +12,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kentos.SharedKernel\Kentos.SharedKernel.csproj" />
     <!-- Modules referenced so `permissions scan` can discover their PermissionDefinitions. -->
+    <ProjectReference Include="..\..\src\Modules\Kentos.Modules.Hesap\Kentos.Modules.Hesap.csproj" />
     <ProjectReference Include="..\..\src\Modules\Kentos.Modules.Settlement\Kentos.Modules.Settlement.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console.Cli" />
-    <PackageReference Include="DotNetEnv" />
   </ItemGroup>
 
 </Project>

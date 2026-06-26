@@ -5,7 +5,7 @@ namespace Kentos.AdminCli;
 /// <summary>Logs each successful provisioning stage to the console and a replayable log file.</summary>
 internal static class Log
 {
-    private const string LogFile = "keycloak-provision.log";
+    private const string LogFile = "kentos-admin.log";
 
     public static void Ok(string message)
     {

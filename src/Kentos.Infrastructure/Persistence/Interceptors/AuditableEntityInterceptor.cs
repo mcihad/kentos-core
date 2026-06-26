@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Kentos.Infrastructure.Persistence.Interceptors;
 
 /// <summary>
-/// Applies audit fields, UUIDv7 generation, version increment and hard-delete to
-/// soft-delete conversion for <see cref="BaseEntity"/> instances.
+/// Applies audit fields (<see cref="IAuditable"/>), hard-delete to soft-delete
+/// conversion (<see cref="ISoftDeletable"/>), plus UUIDv7 generation and version
+/// increment for <see cref="BaseEntity"/> instances. Interface-based so it also
+/// covers entities that cannot inherit <see cref="BaseEntity"/> (e.g. ASP.NET
+/// Identity users/roles), which obtain their UUID via a DB default instead.
 /// </summary>
 public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
 {
@@ -44,33 +47,55 @@ public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
         var now = _clock.GetUtcNow();
         var actor = _currentUser.UserName ?? _currentUser.UserId;
 
-        foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
+        foreach (var entry in context.ChangeTracker.Entries())
         {
+            if (entry.Entity is not (IAuditable or ISoftDeletable))
+            {
+                continue;
+            }
+
             switch (entry.State)
             {
                 case EntityState.Added:
-                    if (entry.Entity.Uuid == Guid.Empty)
+                    // BaseEntity carries Uuid/Version; Identity entities get their UUID from a DB default.
+                    if (entry.Entity is BaseEntity addedEntity)
                     {
-                        entry.Entity.Uuid = Guid.CreateVersion7();
+                        if (addedEntity.Uuid == Guid.Empty)
+                        {
+                            addedEntity.Uuid = Guid.CreateVersion7();
+                        }
+
+                        addedEntity.Version = 1;
                     }
 
-                    entry.Entity.CreatedBy = actor;
-                    entry.Entity.CreatedAt = now;
-                    entry.Entity.Version = 1;
+                    if (entry.Entity is IAuditable addedAuditable)
+                    {
+                        addedAuditable.CreatedBy = actor;
+                        addedAuditable.CreatedAt = now;
+                    }
+
                     break;
 
                 case EntityState.Modified:
-                    entry.Entity.UpdatedBy = actor;
-                    entry.Entity.UpdatedAt = now;
-                    entry.Entity.Version += 1;
+                    if (entry.Entity is BaseEntity modifiedEntity)
+                    {
+                        modifiedEntity.Version += 1;
+                    }
+
+                    if (entry.Entity is IAuditable modifiedAuditable)
+                    {
+                        modifiedAuditable.UpdatedBy = actor;
+                        modifiedAuditable.UpdatedAt = now;
+                    }
+
                     break;
 
-                case EntityState.Deleted:
+                case EntityState.Deleted when entry.Entity is ISoftDeletable deletable:
                     // Convert hard delete to soft delete.
                     entry.State = EntityState.Modified;
-                    entry.Entity.IsDeleted = true;
-                    entry.Entity.DeletedBy = actor;
-                    entry.Entity.DeletedAt = now;
+                    deletable.IsDeleted = true;
+                    deletable.DeletedBy = actor;
+                    deletable.DeletedAt = now;
                     break;
             }
         }

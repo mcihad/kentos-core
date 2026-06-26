@@ -1,6 +1,7 @@
 using Kentos.Infrastructure.DependencyInjection;
 using Kentos.Infrastructure.Modules;
 using Kentos.Infrastructure.Persistence;
+using Kentos.Modules.Hesap.Startup;
 using Serilog;
 using Wolverine;
 
@@ -35,12 +36,15 @@ var app = builder.Build();
 
 AuditExtensions.ConfigureAuditNet(app.Services);
 
-app.UseSerilogRequestLogging();
+app.UseKentosRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {
     await MigrationRunner.MigrateAllAsync(app.Services);
 }
+
+// Idempotent: upserts the permission catalog and bootstraps the admin role/user.
+await HesapSeeder.SeedAsync(app.Services);
 
 app.UseKentosApi();
 

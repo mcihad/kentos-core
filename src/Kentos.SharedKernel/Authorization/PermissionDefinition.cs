@@ -2,7 +2,8 @@ namespace Kentos.SharedKernel.Authorization;
 
 /// <summary>
 /// Full definition of a permission. <see cref="Key"/> is <c>module.resource.action</c>.
-/// In Keycloak each definition maps to a client role.
+/// Definitions are seeded into the Hesap module's permission catalog at startup and
+/// granted to roles; the JWT carries roles only.
 /// </summary>
 public sealed record PermissionDefinition(
     string Key,

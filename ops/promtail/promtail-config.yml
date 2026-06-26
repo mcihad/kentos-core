@@ -1,0 +1,34 @@
+# Promtail ships log files to Loki. It tails:
+#   - the nginx reverse-proxy JSON access logs (the HTTP access record), and
+#   - the API's rolling JSON file logs (Serilog file sink).
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: kentos-proxy
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: kentos-proxy
+          __path__: /proxylogs/access.log
+    pipeline_stages:
+      - json:
+          expressions:
+            status: status
+            method: method
+      - labels:
+          method:
+
+  - job_name: kentos-app
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: kentos-app
+          __path__: /applogs/*.log

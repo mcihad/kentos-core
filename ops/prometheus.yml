@@ -6,5 +6,11 @@ scrape_configs:
   - job_name: kentos
     metrics_path: /metrics
     static_configs:
+      # Prometheus runs inside a container, so "localhost" here means the container
+      # itself — not your machine. host.docker.internal resolves to the host (enabled
+      # by `extra_hosts: host.docker.internal:host-gateway` on the prometheus service
+      # in docker-compose.yml), where `make run` serves the API. For the scrape to
+      # succeed the app must listen on 0.0.0.0 (the Makefile binds BIND_URL=0.0.0.0:5080),
+      # not only on 127.0.0.1.
       - targets:
           - "host.docker.internal:5080"

@@ -1,6 +1,6 @@
 ---
 name: create-permission
-description: Add a permission to a Kentos module resource and bind it to the API endpoint(s) it guards — declares the key, places the [RequiresPermission] attribute on the controller action, regenerates permissions.json, and (if Keycloak is up) creates the client role. Use when asked to add a permission, authorize an endpoint, or restrict access to an action.
+description: Add a permission to a Kentos module resource and bind it to the API endpoint(s) it guards — declares the key, places the [RequiresPermission] attribute on the controller action, regenerates permissions.json; the permission is seeded into the DB (hesap.yetkiler) at startup and granted to roles via the Hesap API. Use when asked to add a permission, authorize an endpoint, or restrict access to an action.
 ---
 
 # create-permission
@@ -57,9 +57,12 @@ public async Task<IActionResult> Approve(Guid id, CancellationToken ct) { ... }
 ```
 
 The attribute is what enforces it: `PermissionPolicyProvider` turns `perm:<key>`
-into a policy and `PermissionAuthorizationHandler` checks the JWT `permissions`
-claim. Missing → 403; no token → 401. If the action does not exist yet, create the
-use-case first (see **/create-resource** or **/update-resource**).
+into a policy and `PermissionAuthorizationHandler` reads the JWT's **`roles`** claim,
+resolves them to permission keys via `IPermissionResolver` (the Hesap
+`RolePermissionResolver`, DB-backed + cached), and checks the requirement. Missing →
+403; no token → 401. **The token never carries permissions — only roles.** If the
+action does not exist yet, create the use-case first (see **/create-resource** or
+**/update-resource**).
 
 ## 3. Regenerate the catalog & confirm it reached the endpoint
 
@@ -72,22 +75,35 @@ curl -s http://localhost:5080/openapi/v1.json | grep -o "{module}.{resource}.{ac
 The key appearing in the OpenAPI document (as `x-required-permission` on that path)
 confirms the binding.
 
-## 4. Push to Keycloak (when Keycloak is running)
+## 4. Seed it into the DB & grant it to a role
+
+Permissions are **system-defined**: `HesapSeeder` upserts every module's declared
+permissions into `hesap.yetkiler` on application startup. So just restart the app:
 
 ```bash
-make permissions-sync        # creates the client role on kentos-client
+make run                     # HesapSeeder upserts the new key into hesap.yetkiler
 ```
-Assign it to a user/group in Keycloak (or it is already covered if you re-run
-`make provision`, which puts every permission on the `kentos-administrators` group).
-A token for that user then carries the key in its `permissions` claim and the
-endpoint returns 200.
 
-## 5. Verify end-to-end (optional, Keycloak up)
+Then grant the key to a role (user-managed) via the Hesap API — the `yonetici`
+(admin) role automatically receives every permission at startup, so admins are
+already covered. For another role:
+
+```
+PUT /api/v1/hesap/roles/{roleId}/permissions
+{ "permissionKeys": ["settlement.neighborhood.approve", ...] }   # full replace
+```
+
+A user holding that role then gets a token carrying the **role** (not the
+permission); the server resolves role→permission and the endpoint returns 200.
+Role↔permission changes invalidate the resolver cache immediately (no re-login needed).
+
+## 5. Verify end-to-end
 
 ```bash
-TOKEN=$(curl -s -d grant_type=password -d client_id=kentos-client \
-  -d username=admin@kentos -d 'password=Admin!234' \
-  http://localhost:8080/realms/kentos/protocol/openid-connect/token | jq -r .access_token)
+# log in (bootstrap admin), then call the guarded endpoint with the access token
+TOKEN=$(curl -s -X POST http://localhost:5080/api/v1/hesap/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"userName":"admin","password":"Admin!234"}' | jq -r .accessToken)
 curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOKEN" \
   -X POST http://localhost:5080/api/v1/{module}/{resources}/<id>/approve   # expect the action's success code
 ```
@@ -98,5 +114,6 @@ curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOKEN" \
   attribute. Declaring the key without placing the attribute does nothing.
 - `permissions.json` is generated from code (`make permissions-scan`); never edit it
   by hand.
-- New client roles exist in Keycloak only after `make permissions-sync`; a token
-  minted before the sync won't contain the new key.
+- The permission row appears in `hesap.yetkiler` only after the app restarts
+  (`HesapSeeder` runs at startup). A role must then be granted the key, and the user
+  must hold that role.
